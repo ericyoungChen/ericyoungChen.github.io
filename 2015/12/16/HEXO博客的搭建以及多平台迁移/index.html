@@ -24,7 +24,7 @@
 <meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH1.png">
 <meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH2.png">
 <meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH3.png">
-<meta property="og:updated_time" content="2016-09-17T04:39:15.000Z">
+<meta property="og:updated_time" content="2016-09-17T05:04:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HEXO博客的搭建以及多平台迁移">
 <meta name="twitter:description" content="前言：最近这段时间发生的事情很多，也觉得自己越来越浮躁，出于练习以及实践，准备对最近自己所做的实践进行总结，也就有了这个博客，国际惯例，第一篇正式博客就从搭建这个博客说起吧。
@@ -270,9 +270,10 @@ $ npm install
 $ hexo server
 </code></pre><p>就可以在本地预览自己编写的博客，地址是localhost:4000</p>
 <h4 id="7、配置"><a href="#7、配置" class="headerlink" title="7、配置"></a>7、配置</h4><p>到上述生成的目录下，找到_config.yml文件，用非windows的记事本打开，如notpad++，找到最后一部分，如下填写（每个冒号后面都有个空格，不然会报错）：</p>
-<pre><code>deploy: git
-repo: https://github.com/youraccountname/youraccountname.git.io
-branch: master
+<pre><code>deploy:
+  type: git
+  repo: https://github.com/youraccountname/youraccountname.git.io
+  branch: master
 </code></pre><p>然后保存。就可以开始文档的编辑了，这个步骤的目的是将生成的静态页面的相关文档上交到你的github账户下的仓库里。</p>
 <h4 id="8、部署"><a href="#8、部署" class="headerlink" title="8、部署"></a>8、部署</h4><p>完成以上步骤之后，基本就完成博客的编写，但是仅仅是将文件生成好，别人还是没办法看到你所写的内容。这时候就要页面相关的文件部署到github仓库中。需要执行下面的语句：</p>
 <pre><code>$ hexo deploy
