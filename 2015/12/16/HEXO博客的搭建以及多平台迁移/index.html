@@ -21,10 +21,8 @@
 项目命名规则为你的github的ID.github.io
 
 2、在自己的电脑上安装两个软件git和nodejs建议先安装git，然后在gi">
-<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH1.png">
-<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH2.png">
-<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH3.png">
-<meta property="og:updated_time" content="2016-09-17T05:04:57.000Z">
+<meta property="og:image" content="http://yoursite.com/img/SSH.png">
+<meta property="og:updated_time" content="2016-09-17T07:31:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HEXO博客的搭建以及多平台迁移">
 <meta name="twitter:description" content="前言：最近这段时间发生的事情很多，也觉得自己越来越浮躁，出于练习以及实践，准备对最近自己所做的实践进行总结，也就有了这个博客，国际惯例，第一篇正式博客就从搭建这个博客说起吧。
@@ -33,7 +31,7 @@
 项目命名规则为你的github的ID.github.io
 
 2、在自己的电脑上安装两个软件git和nodejs建议先安装git，然后在gi">
-<meta name="twitter:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH1.png">
+<meta name="twitter:image" content="http://yoursite.com/img/SSH.png">
   
     <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
   
@@ -245,7 +243,7 @@
 <h4 id="3、生成SSH-keys"><a href="#3、生成SSH-keys" class="headerlink" title="3、生成SSH keys"></a>3、生成SSH keys</h4><p>在上述搭建完的环境下，执行以下命令生成密钥：</p>
 <p><code>$ ssh-keygen -t rsa -C &quot;此处填写你的github账户&quot;</code></p>
 <p>执行完了之后，会在你的根目录下生成两个文件，名称分别是id_rsa.和id_rsa.pub。得到这里两个文件之后，就在你的github网站上找到sittings-&gt;SSH keys-&gt;Add SSH key。然后将id_rsa.pub里面的内容用notepad++打开拷贝下来(最好用非windows的编辑器)，粘贴到Key里面，然后名字随便起就ok了</p>
-<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH1.png" alt="SETP1"><br><img src="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH2.png" alt="STEP2"><br><img src="http://7xpdnd.com1.z0.glb.clouddn.com/HEXO-SSH3.png" alt="STEP3"></p>
+<p><img src="/img/SSH.png" alt="class names"></p>
 <p>添加密钥成功后，就在本机上测试，在git提供的shell下执行<code>ssh -T git@github.com</code>当终端返回：</p>
 <pre><code>Hi &quot;your account&quot; !You&apos;ve successfully authenticated, but GitHub does not provide shell access.
 </code></pre><p>就表明连接成功了。</p>
@@ -269,8 +267,8 @@ $ npm install
 <pre><code>$ hexo generate
 $ hexo server
 </code></pre><p>就可以在本地预览自己编写的博客，地址是localhost:4000</p>
-<h4 id="7、配置"><a href="#7、配置" class="headerlink" title="7、配置"></a>7、配置</h4><p>到上述生成的目录下，找到_config.yml文件，用非windows的记事本打开，如notpad++，找到最后一部分，如下填写（每个冒号后面都有个空格，不然会报错）：</p>
-<pre><code>deploy:
+<h4 id="7、配置"><a href="#7、配置" class="headerlink" title="7、配置"></a>7、配置</h4><p>到上述生成的目录下，找到_config.yml文件，用非windows的记事本打开，如notpad++，找到最后一部分，如下填写（每个冒号后面都有个空格按照yaml语言要求，不然会报错）：</p>
+<pre><code>deploy: 
   type: git
   repo: https://github.com/youraccountname/youraccountname.git.io
   branch: master
@@ -291,6 +289,14 @@ $ hexo deploy
 </blockquote>
 </li>
 </ul>
+<h4 id="10、踩过的坑"><a href="#10、踩过的坑" class="headerlink" title="10、踩过的坑"></a>10、踩过的坑</h4><p>在mac下执行<code>hexo</code>相关命令报错，内容如下:</p>
+<pre><code>{ [Error: Cannot find module &apos;./build/Release/DTraceProviderBindings&apos;] code: &apos;MODULE_NOT_FOUND&apos; }
+{ [Error: Cannot find module &apos;./build/default/DTraceProviderBindings&apos;] code: &apos;MODULE_NOT_FOUND&apos; }
+{ [Error: Cannot find module &apos;./build/Debug/DTraceProviderBindings&apos;] code: &apos;MODULE_NOT_FOUND&apos; }
+</code></pre><p>原因应该是少安装了模块，网上的解决办法说的是执行<code>$ npm install hexo --no-optional</code>我尝试过这个办法，但是问题依旧(即便是将hexo删除了再执行这个命令安装)。于是在一篇文章中找到了如下解决办法，执行之后就没有报错了:</p>
+<pre><code>$&gt; npm uninstall hexo-cli -g
+$&gt; npm install hexo-cli -g
+</code></pre><p>执行完上述两步骤之后，就不再报错啦～</p>
 
       
     </div>
