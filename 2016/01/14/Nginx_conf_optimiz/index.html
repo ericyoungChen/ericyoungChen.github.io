@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Nginx性能调优初识 | Young&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、简介Nginx的轻量级、高可用以及高性能等诸多优点，让它成为诸多架站web服务器的选择热门之一。在前面的博文介绍了LNMP网站架构的搭建之后，在此初步描述下Nginx的配置文件以及初步的调优方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx性能调优初识">
+<meta property="og:url" content="http://yoursite.com/2016/01/14/Nginx_conf_optimiz/index.html">
+<meta property="og:site_name" content="Young's Blog">
+<meta property="og:description" content="一、简介Nginx的轻量级、高可用以及高性能等诸多优点，让它成为诸多架站web服务器的选择热门之一。在前面的博文介绍了LNMP网站架构的搭建之后，在此初步描述下Nginx的配置文件以及初步的调优方法。">
+<meta property="og:updated_time" content="2016-09-17T08:20:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nginx性能调优初识">
+<meta name="twitter:description" content="一、简介Nginx的轻量级、高可用以及高性能等诸多优点，让它成为诸多架站web服务器的选择热门之一。在前面的博文介绍了LNMP网站架构的搭建之后，在此初步描述下Nginx的配置文件以及初步的调优方法。">
+  
+    <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Young Chen</a></h1>
+		</hgroup>
+
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+					        
+								<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+					        
+								<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">I hear and I forget,I see and I remember,I do and I understand.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Young Chen</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Young Chen</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+			        
+						<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+			        
+						<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-Nginx_conf_optimiz" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/01/14/Nginx_conf_optimiz/" class="article-date">
+  	<time datetime="2016-01-14T09:01:57.000Z" itemprop="datePublished">2016-01-14</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Nginx性能调优初识
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能调优/">性能调优</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>Nginx的轻量级、高可用以及高性能等诸多优点，让它成为诸多架站web服务器的选择热门之一。在前面的博文介绍了LNMP网站架构的搭建之后，在此初步描述下Nginx的配置文件以及初步的调优方法。</p>
+<a id="more"></a>
+<h2 id="二、配置文件"><a href="#二、配置文件" class="headerlink" title="二、配置文件"></a>二、配置文件</h2><p>在Nginx的配置文件里大致的结构如下：</p>
+<pre><code>vi /usr/local/nginx/conf/nginx.conf        
+
+    user www www;
+    worker_processes 1; 
+    events {
+    worker_connections 1024;
+    }
+    http {
+    include mime.types;
+    default_type application/octet-stream;
+    sendfile on;
+    keepalive_timeout 65;
+    server {
+    listen 80;
+    server_name localhost;
+    location / {
+    root html;
+    index index .php index.html index.htm;
+    }
+    location ~ \.php$ {
+    root html;
+    fastcgi_pass 127.0.0.1:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+    }
+    }
+    }
+</code></pre><h2 id="三、配置文件参数详解以及优化设置"><a href="#三、配置文件参数详解以及优化设置" class="headerlink" title="三、配置文件参数详解以及优化设置"></a>三、配置文件参数详解以及优化设置</h2><p>调优的参数大致如下：</p>
+<ol>
+<li>worker_processes</li>
+<li>worker_connections</li>
+<li>worker_rlimit_nofile</li>
+<li>Buffer</li>
+<li>Timeouts</li>
+<li>Ggzip Compression</li>
+<li>Static File Caching</li>
+<li>logging</li>
+</ol>
+<h3 id="1-worker-processes"><a href="#1-worker-processes" class="headerlink" title="1. worker_processes"></a>1. worker_processes</h3><p><code>worker_process</code>表述Nginx的工作进程数目，一般设置为CUP核心的数目即可。查看CUP核心的数目指令可用这个command：<code>grep processor /proc/cpuinfo | wc -l</code></p>
+<h3 id="2-worker-connections"><a href="#2-worker-connections" class="headerlink" title="2. worker_connections"></a>2. worker_connections</h3><p><code>worker_connections</code>表示每个nginx进程允许的最大用户连接数(并发连接数)，默认值为1024.理论上每台Nginx服务器最大连接数为N=worker_processes*worker_connections</p>
+<h3 id="3-worker-rlimit-nofile"><a href="#3-worker-rlimit-nofile" class="headerlink" title="3. worker rlimit nofile"></a>3. worker rlimit nofile</h3><p><code>worker_rlimit_nofile</code>指的是每个nginx进程所能打开的最多文件描述符数，理论值是<code>ulimit -n</code>除以<code>worker_processes</code></p>
+<h3 id="4-Buffer"><a href="#4-Buffer" class="headerlink" title="4.Buffer"></a>4.Buffer</h3><p>Buffer是一个很重要的参数，如果设置过小，Nginx就会不断地写临时文件，进而造成磁盘不停地读写，增大磁盘IO.<br><code>client_body_buffer_size</code>指的是客户端请求的最大单个文件字节数<br><code>client_header_buffer_size</code>设置客户端请求的Header头缓冲区大小，一般为1K.<br><code>client_max_body_size</code>设置客户端能够上传的文件大小，默认为1M.<br><code>large_client_header_buffers</code>该参数用于设置客户端请求的Header头缓冲区大小.<br>具体参考配置如下：</p>
+<pre><code>client_body_buffer_size        10k;
+client_header_buffer_size    1k;
+client_max_body_size        8m;
+largr_client_header_buffers    2 1k;
+</code></pre><h3 id="5-Timeouts"><a href="#5-Timeouts" class="headerlink" title="5. Timeouts"></a>5. Timeouts</h3><p><code>client_body_timeout</code>和<code>client_body_timeout</code>分别设置请求头和请求体的超时时间，如果没有发送请求头和请求体，Nginx服务器会返回408错误或者request time out.<br><code>keepalive_timeout</code>给客户端分配keep-alive连接超时时间.<br><code>send_timeout</code>为客户端响应时间，这个设置不会用于整个转发器，而是在两侧客户端读取操作之间，若这段时间内，客户端没有读取数据，Nginx就会关闭连接.<br>参考配置如下：</p>
+<pre><code>client_body_timeout        12;
+client_header_timeout    12;
+keepalive_timeout        15;
+send_timeout            10;
+</code></pre><h3 id="6-Gzip-Compression"><a href="#6-Gzip-Compression" class="headerlink" title="6. Gzip Compression"></a>6. Gzip Compression</h3><p>开启Gzip，可以帮助Nginx减少网络传输工作，此外还需要注意<code>gzip_comp_level</code>的设置，不宜过高，否则Nginx会浪费CPU的执行周期.<br>参考配置如下:</p>
+<pre><code>gzip                on;
+gzip_comp_level        2;
+gzip_min_length        1000;
+gzip_proxied        expired no-cache no-store private auth;
+gzip_types            tex/plain application/x-javascript text/xml text/css application/xml;
+</code></pre><h3 id="7-Static-File-Caching"><a href="#7-Static-File-Caching" class="headerlink" title="7. Static File Caching"></a>7. Static File Caching</h3><p>参考配置：</p>
+<pre><code>location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
+    expires 365d;
+}
+</code></pre><p>以上文件类型可以根据Nginx服务器匹配增加或者减少。</p>
+<h3 id="8-logging"><a href="#8-logging" class="headerlink" title="8. logging"></a>8. logging</h3><p><code>access_log</code>设置Nginx是否开启存储访问日志，关闭此选项，可以提升磁盘IO。对应配置部分如下：</p>
+<pre><code>access_log        off;
+</code></pre><p>至此介绍完Nginx的性能调优的小部分内容。在以后如果有更多的方法，都会在此文章中更新。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/03/08/Saltstack_learning_notes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Saltstack学习记录
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/27/MHA_of_MySQL/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">MySQL高可用架构MHA</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="Nginx_conf_optimiz" data-title="Nginx性能调优初识" data-url="http://yoursite.com/2016/01/14/Nginx_conf_optimiz/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"ericyoungchen"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 Young Chen
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>

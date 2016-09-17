@@ -102,7 +102,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/Hash-tag/" style="font-size: 10px;">Hash tag</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/多实例/" style="font-size: 10px;">多实例</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
 					</div>
 				</section>
 				
@@ -167,8 +167,8 @@
     <article id="post-Hash_tags" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/08/03/Hash_tags/" class="article-date">
-  	<time datetime="2016-08-02T16:43:00.000Z" itemprop="datePublished">2016-08-03</time>
+      <a href="/2016/09/17/Hash_tags/" class="article-date">
+  	<time datetime="2016-09-17T04:39:15.000Z" itemprop="datePublished">2016-09-17</time>
 </a>
     </div>
   
@@ -177,23 +177,9 @@
       <input type="hidden" class="isFancy" />
     
     
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/03/Hash_tags/">Twemproxy中一致性hash与hash tags的理解</a>
-    </h1>
-  
-
-      </header>
-      
-    
     <div class="article-entry" itemprop="articleBody">
       
-        <blockquote>
-<p>这篇文章是入职后第11天写的，到现在才同步到自己的blog中，真的感到很惭愧。</p>
-</blockquote>
-<h4 id="一、对Twemproxy中一致性hash与hash-tags的理解"><a href="#一、对Twemproxy中一致性hash与hash-tags的理解" class="headerlink" title="一、对Twemproxy中一致性hash与hash tags的理解"></a>一、对Twemproxy中一致性hash与hash tags的理解</h4><h5 id="1-一致性hash"><a href="#1-一致性hash" class="headerlink" title="1. 一致性hash"></a>1. 一致性hash</h5><p>twemproxy中的服务集群既能够以<code>host:port:weight</code>形式进行匹配，也可以通过<code>host:port:weight name</code>进行匹配,配置文件中的字段如下：</p>
+        <h2 id="对Twemproxy中一致性hash与hash-tags的理解"><a href="#对Twemproxy中一致性hash与hash-tags的理解" class="headerlink" title="对Twemproxy中一致性hash与hash tags的理解"></a>对Twemproxy中一致性hash与hash tags的理解</h2><h5 id="1-一致性hash"><a href="#1-一致性hash" class="headerlink" title="1. 一致性hash"></a>1. 一致性hash</h5><p>twemproxy中的服务集群既能够以<code>host:port:weight</code>形式进行匹配，也可以通过<code>host:port:weight name</code>进行匹配,配置文件中的字段如下：</p>
 <pre><code>servers:
  - 127.0.0.1:6379:1
  - 127.0.0.1:6380:1
@@ -206,15 +192,11 @@
     <div class="article-info article-info-index">
       
       
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hash-tag/">Hash tag</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
-	</div>
-
       
 
       
         <p class="article-more-link">
-          <a  href="/2016/08/03/Hash_tags/#more">more >></a>
+          <a  href="/2016/09/17/Hash_tags/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -231,11 +213,11 @@
 
 
   
-    <article id="post-php多实例" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-php-fpm_multidaemon" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/03/10/php多实例/" class="article-date">
-  	<time datetime="2016-03-10T08:05:22.000Z" itemprop="datePublished">2016-03-10</time>
+      <a href="/2016/03/10/php-fpm_multidaemon/" class="article-date">
+  	<time datetime="2016-03-09T16:00:00.000Z" itemprop="datePublished">2016-03-10</time>
 </a>
     </div>
   
@@ -248,7 +230,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/10/php多实例/">php多实例</a>
+      <a class="article-title" href="/2016/03/10/php-fpm_multidaemon/">php-fpm多实例</a>
     </h1>
   
 
@@ -257,9 +239,26 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <blockquote>
-<p>这个事情其实应该在几个月前就搞定了，个人原因，说到底还是没有钻研到底的那种精神。经过一段时间的挣扎，也对这部分的知识有了更深刻的理解，多实例的关键在于配置文件以及对应的pid文件还有启动脚本的不冲突。至于配置参数调优这一块，至今还没有去研究，现在有个一个很好的环境，所以得把握好机会，多学习吧。</p>
+        <h2 id="php-fpm多实例启动"><a href="#php-fpm多实例启动" class="headerlink" title="php-fpm多实例启动"></a>php-fpm多实例启动</h2><blockquote>
+<p>这个事情其实应该在几个月前就搞定了，个人原因，说到底还是没有钻研到底的那种精神。经过一段时间的挣扎，也对这部分的知识有了更深刻的理解，多实例的关键在于配置文件以及对应的pid文件还有启动脚本的不冲突。至于配置参数调优这一块，至今还没有去研究，现在有个一个很好的环境，所以得把握好机会，多学习吧。<br>下面就是正题，以其中一个实例为例子：</p>
 </blockquote>
+<ol>
+<li>编译安装</li>
+</ol>
+<pre><code>$&gt; yum -y install gcc gcc-c++
+# 安装c和c++编译器
+$&gt; yum -y install libxml2-devel openssl-devel libcurl-devel libjpeg-devel libpng-devel libicu-devel openldap-devel
+# 安装依赖
+$&gt; cd /usr/local/src/php-5.6.19
+$&gt; ./configure --prefix=/usr/local/webserver/php --enable-fpm
+# 选择编译参数
+$&gt; make &amp;&amp;　make install 
+# 安装
+$&gt; cp /usr/local/src/php-5.6.19/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+# 配置启动脚本
+$&gt; chmod +x /etc/rc.d/init.d/php-fpm 
+# 添加执行权限
+</code></pre>
       
     </div>
     
@@ -267,14 +266,14 @@
       
       
 	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php-fpm/">php-fpm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/多实例/">多实例</a></li></ul>
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/multi-daemon/">multi-daemon</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php-fpm/">php-fpm</a></li></ul>
 	</div>
 
       
 
       
         <p class="article-more-link">
-          <a  href="/2016/03/10/php多实例/#more">more >></a>
+          <a  href="/2016/03/10/php-fpm_multidaemon/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -291,10 +290,10 @@
 
 
   
-    <article id="post-Saltstack学习记录" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Saltstack_learning_notes" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/03/08/Saltstack学习记录/" class="article-date">
+      <a href="/2016/03/08/Saltstack_learning_notes/" class="article-date">
   	<time datetime="2016-03-08T04:57:16.000Z" itemprop="datePublished">2016-03-08</time>
 </a>
     </div>
@@ -308,7 +307,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/08/Saltstack学习记录/">Saltstack学习记录</a>
+      <a class="article-title" href="/2016/03/08/Saltstack_learning_notes/">Saltstack学习记录</a>
     </h1>
   
 
@@ -348,7 +347,7 @@
 
       
         <p class="article-more-link">
-          <a  href="/2016/03/08/Saltstack学习记录/#more">more >></a>
+          <a  href="/2016/03/08/Saltstack_learning_notes/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -365,10 +364,10 @@
 
 
   
-    <article id="post-Nginx性能调优初识" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Nginx_conf_optimiz" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/01/14/Nginx性能调优初识/" class="article-date">
+      <a href="/2016/01/14/Nginx_conf_optimiz/" class="article-date">
   	<time datetime="2016-01-14T09:01:57.000Z" itemprop="datePublished">2016-01-14</time>
 </a>
     </div>
@@ -382,7 +381,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/14/Nginx性能调优初识/">Nginx性能调优初识</a>
+      <a class="article-title" href="/2016/01/14/Nginx_conf_optimiz/">Nginx性能调优初识</a>
     </h1>
   
 
@@ -406,7 +405,7 @@
 
       
         <p class="article-more-link">
-          <a  href="/2016/01/14/Nginx性能调优初识/#more">more >></a>
+          <a  href="/2016/01/14/Nginx_conf_optimiz/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -423,10 +422,10 @@
 
 
   
-    <article id="post-MySQL高可用架构MHA" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-MHA_of_MySQL" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/12/27/MySQL高可用架构MHA/" class="article-date">
+      <a href="/2015/12/27/MHA_of_MySQL/" class="article-date">
   	<time datetime="2015-12-26T16:04:43.000Z" itemprop="datePublished">2015-12-27</time>
 </a>
     </div>
@@ -440,7 +439,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/27/MySQL高可用架构MHA/">MySQL高可用架构MHA</a>
+      <a class="article-title" href="/2015/12/27/MHA_of_MySQL/">MySQL高可用架构MHA</a>
     </h1>
   
 
@@ -474,7 +473,7 @@
 
       
         <p class="article-more-link">
-          <a  href="/2015/12/27/MySQL高可用架构MHA/#more">more >></a>
+          <a  href="/2015/12/27/MHA_of_MySQL/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -493,7 +492,7 @@
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
     </nav>
   
 </div>
