@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>MySQL主从同步配置 | Young&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言：MySQL的主从同步是构建MySQL高性能高可用架构的基础，关于MySQL的安装和配置，在前一篇博文已经描述的很详细，在此不做赘述。本文重点在于MySQL的主从同步配置。
+
+一、原理概述MySQL数据的复制方式是安装有该服务的某台主机(master)中的日志文件(binlog)复制到其他主机(slave)上，slave读取对比位于本机的relaylog，并执行一遍所需要的复制来实现的。
+复">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL主从同步配置">
+<meta property="og:url" content="http://yoursite.com/2015/12/18/MySQL主从同步配置/index.html">
+<meta property="og:site_name" content="Young's Blog">
+<meta property="og:description" content="前言：MySQL的主从同步是构建MySQL高性能高可用架构的基础，关于MySQL的安装和配置，在前一篇博文已经描述的很详细，在此不做赘述。本文重点在于MySQL的主从同步配置。
+
+一、原理概述MySQL数据的复制方式是安装有该服务的某台主机(master)中的日志文件(binlog)复制到其他主机(slave)上，slave读取对比位于本机的relaylog，并执行一遍所需要的复制来实现的。
+复">
+<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Rep.jpg">
+<meta property="og:updated_time" content="2016-09-17T04:39:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL主从同步配置">
+<meta name="twitter:description" content="前言：MySQL的主从同步是构建MySQL高性能高可用架构的基础，关于MySQL的安装和配置，在前一篇博文已经描述的很详细，在此不做赘述。本文重点在于MySQL的主从同步配置。
+
+一、原理概述MySQL数据的复制方式是安装有该服务的某台主机(master)中的日志文件(binlog)复制到其他主机(slave)上，slave读取对比位于本机的relaylog，并执行一遍所需要的复制来实现的。
+复">
+<meta name="twitter:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Rep.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Young Chen</a></h1>
+		</hgroup>
+
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+					        
+								<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+					        
+								<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/Hash-tag/" style="font-size: 10px;">Hash tag</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/多实例/" style="font-size: 10px;">多实例</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">I hear and I forget,I see and I remember,I do and I understand.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Young Chen</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Young Chen</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+			        
+						<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+			        
+						<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-MySQL主从同步配置" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/12/18/MySQL主从同步配置/" class="article-date">
+  	<time datetime="2015-12-18T03:12:02.000Z" itemprop="datePublished">2015-12-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL主从同步配置
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>前言：MySQL的主从同步是构建MySQL高性能高可用架构的基础，关于MySQL的安装和配置，在前一篇博文已经描述的很详细，在此不做赘述。本文重点在于MySQL的主从同步配置。</p>
+</blockquote>
+<h3 id="一、原理概述"><a href="#一、原理概述" class="headerlink" title="一、原理概述"></a>一、原理概述</h3><p>MySQL数据的复制方式是安装有该服务的某台主机(master)中的日志文件(binlog)复制到其他主机(slave)上，slave读取对比位于本机的relaylog，并执行一遍所需要的复制来实现的。</p>
+<p>复制过程中，一个服务器充当主服务器(master)，而一个或者多个服务器其他服务器充当从服务器。主服务器将更新写入二进制日志文件(binlog)，并维护文件的一个索引以便于跟踪日志循环。而这些日志可以被从服务器读取并且与从服务器自己的日志文件(relaylog)，进行对比，找到最近一次更新的位置，进行写入，完成后，从服务器才开始激活一个新的SQL线程进行数据的读写操作。</p>
+<h3 id="二、工作描述"><a href="#二、工作描述" class="headerlink" title="二、工作描述"></a>二、工作描述</h3><ol>
+<li>master将数据的改变记录到二进制日志(binary log)中；</li>
+<li>slave将master的binary log中的事件内容拷贝到它的中继日志(relay log)；</li>
+<li>slave重做relay log中的事件，将改变它自己的数据</li>
+</ol>
+<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/Rep.jpg" alt="原理图示"></p>
+<a id="more"></a>
+<h3 id="三、配置"><a href="#三、配置" class="headerlink" title="三、配置"></a>三、配置</h3><p>约定：</p>
+<ul>
+<li>主库ip:192.168.137.226</li>
+<li>从库ip:192.168.137.179</li>
+</ul>
+<blockquote>
+<p>MySQL的安装和基本的配置上一篇博文中描写的比较详细，在此不做赘述。详情可以<a href="">戳我</a></p>
+</blockquote>
+<ol>
+<li>配置MySQL主服务器(192.168.137.226)</li>
+</ol>
+<pre><code>$ mysql -u root -p #进入MySQL控制台
+    &gt;create database youngdb; #建立数据库youngdb
+    &gt;insert into mysql.user(Host,User,Password) values(&apos;localhost&apos;,&apos;young&apos;,password(&apos;123321&apos;)); #创建用户young，密码123321
+    &gt;grant all on youngdb.* to &apos;young&apos;@&apos;192.168.137.179&apos; identified by &apos;123321&apos; with grant option; #授权用户young从192.168.137.179(即从库所在的ip地址)完全访问数据库db1
+    &gt;insert into mysql.user(Host,User,Password) values(&apos;localhost&apos;,&apos;youngdbbak&apos;,password(&apos;123321&apos;)); #建立MySQL主从数据库同步用户youngdbbak密码123321
+    &gt;flush privileges; #刷新系统授权表
+    &gt;grant replication slave on *.* to &apos;youngdbbak&apos;@&apos;192.168.137.179&apos; identified by &apos;123321&apos; with grant option; #授权用户youngdbbak只能从192.168.137.179这个IP访问主服务器192.168.137.226上面的数据库，并且只具有数据库备份的权限
+</code></pre><ol>
+<li><p>把MySQL主服务器192.168.137.226中的数据库youngdb导入到MySQL从服务器192.168.137.179中</p>
+<ul>
+<li>导出数据库youngdb</li>
+</ul>
+</li>
+</ol>
+<pre><code>        $ mysqldump -u root -p --default-character-set=utf8 --opt -Q -R --skip-lock-tables youngdb &gt; /home/youngdbbak.sql #在MySQL主服务器进行操作，导出数据库youngdb到/home/youngdbbak.sql
+        $ scp /home/youngdbbak.sql root@192.168.137.179:/home #把home目录下的youngdbbak.sql 数据库文件上传到MySQL从服务器的home目录下面
+备注：在导出之前可以先进入MySQL控制台执行下面命令
+
+        mysql -u root -p;
+            &gt;flush tables with read lock; #数据库只读锁定命令，防止导出数据库的时候有数据写入
+            &gt;unlock tables; #解除锁定
+
+* 导入数据库到MySQL从服务器
+
+
+        $ mysql -u root -p #进入从服务器MySQL控制台
+            &gt;create database youngdb; #创建数据库
+            &gt;use youngdb #进入数据库
+        $ source /home/youngdbbak.sql #导入备份文件到数据库
+        $ mysql -u youngbak -h 192.168.137.226 -p #测试在从服务器上登录到主服务器
+</code></pre><ol>
+<li>配置MySQL主服务器的配置文件(my.cnf)</li>
+</ol>
+<pre><code>    $ vim /etc/my.cnf #在[mysqld]部分添加下面内容
+        server-id = 1 # 设置服务器id，1表示为主服务器，如配置文件原有就不用添加
+        log-bin = mysql-bin #启动MySQL二进制日志文件，配置文件中若有则不用添加
+        binlog-do-db=youngdb #设置需要同步的数据库名称，如有多个数据库，可重复此参数，每个库一行
+        binlog-ignore-db=mysql #设置不同步的MySQL系统数据库
+
+
+* 保存退出后，执行`$ service mysqld restart`重启MySQL
+* 进入MySQL控制台：
+
+
+        $ mysql -u root -p
+            &gt;show variables like &apos;server_id&apos;; #查看server-id是否为1
+            &gt; 
+                +---------------+-------+
+                | Variable_name | Value |
+                +---------------+-------+
+                | server_id | 1 |
+                +---------------+-------+
+                1 row in set (0.00 sec)
+            &gt;show master status;
+
+                +------------------+----------+--------------+------------------+
+
+                | File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+
+                +------------------+----------+--------------+------------------+
+
+                | mysql-bin.000011 | 107 | youngdb | mysql |
+
+                +------------------+----------+--------------+------------------+
+
+                1 row in set (0.00 sec) #注意，在这里需要记住File名(mysql-bin.000011)和Position(107)，不同的库位置不一定一样。在后面设置从库的时候需要用到
+</code></pre><ol>
+<li><p>配置MySLQ从服务器(192.168.137.179)</p>
+<ul>
+<li>编辑配置文件，在[mysqld]部分添加以下内容：</li>
+</ul>
+</li>
+</ol>
+<pre><code>        server-id=2 #设置服务器id，修改为除了1以外的任何数字，表明这个MySQL是从库
+        log-bin=mysql-bin
+        replicate-do-db=youngdb #设置需要同步的数据库名
+        replicate-ignore-db=mysql #不同步MySQL系统数据库
+        read_only #设置只读
+
+* 完成后重启MySLQ服务，查看相关参数
+
+
+        $ service mysqld restart #重启
+        $ mysql -u root -p
+            &gt;show variables like &apos;server_id&apos;;
+            &gt;+---------------+-------+
+
+             | Variable_name | Value |
+
+             +---------------+-------+
+
+             | server_id | 2 |
+
+             +---------------+-------+
+
+             1 row in set (0.01 sec)
+
+            &gt;slave stop; #停止slave同步进程
+            &gt;change master to master_host=&apos;192.168.137.226&apos;,master_user=&apos;youngdbbak&apos;,master_password=&apos;123456&apos;,master_log_file=&apos;mysql-bin.000011&apos; ,master_log_pos=107; #执行同步语句master_log_file和master_log_pos均为刚才在主服务器上记录的文件以及位置
+            &gt;slave start; #开启slave同步进程
+            &gt;SHOW SLAVE STATUS\G #查看slave同步信息，出现以下内容
+            &gt;*************************** 1. row ***************************
+
+                Slave_IO_State: Waiting for master to send event
+
+                Master_Host: 192.168.137.226
+
+                Master_User: youngdbbak
+
+                Master_Port: 3306
+
+                Connect_Retry: 60
+
+                Master_Log_File: mysql-bin.000011
+
+                Read_Master_Log_Pos: 107
+
+                Relay_Log_File: mysqlslave-relay-bin.000004
+
+                Relay_Log_Pos: 253
+
+                Relay_Master_Log_File: mysql-bin.000011
+
+                Slave_IO_Running: Yes # 注意查看这一行以及下一行，均为yes表明主从设置成功
+
+                Slave_SQL_Running: Yes
+                .
+                .
+                .
+                .
+                mysql&gt;
+</code></pre><h3 id="四、测试"><a href="#四、测试" class="headerlink" title="四、测试"></a>四、测试</h3><ol>
+<li>进入MySQL主服务器(192.168.137.226)</li>
+</ol>
+<pre><code>$ mysql -u root -p
+    &gt;use youngdb; #启用数据库
+    &gt;CREATE TABLE test(id int not null primary key,name char(20)); #创建test表
+</code></pre><ol>
+<li>进入从服务器</li>
+</ol>
+<pre><code>$ mysql -u root -p
+    &gt;use youngdb;
+    &gt;show tables; #查看youngdb表结构，会看到新建的表，表明同步成功
+    &gt;+----------------------+
+
+     | Tables_in_youngdb |
+
+     +----------------------+
+
+     | test |
+
+     +----------------------+
+
+     1 row in set (0.00 sec)
+</code></pre><h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>MySQL的主从同步功能非常强大，配置也很灵活，配置的时候注意需要指明同步的以及忽略的数据库，设置好server-id避免冲突。在这个功能的基础上，搭配其他的监测工具可以实现更加完善的高可用MySQL架构。比如MySQL+MHA，MySLQ+LVS+Keepalived等方案。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/12/21/Nagios-运维监控利器/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Nagios-运维监控利器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/17/LNMP服务器环境配置以及搭建/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">LNMP服务器环境配置以及搭建</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="MySQL主从同步配置" data-title="MySQL主从同步配置" data-url="http://yoursite.com/2015/12/18/MySQL主从同步配置/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"ericyoungchen"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 Young Chen
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>
