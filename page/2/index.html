@@ -102,7 +102,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/inode/" style="font-size: 10px;">inode</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/rsync/" style="font-size: 10px;">rsync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
 					</div>
 				</section>
 				
@@ -163,6 +163,74 @@
 	</div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-MHA_of_MySQL" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/12/27/MHA_of_MySQL/" class="article-date">
+  	<time datetime="2015-12-26T16:04:43.000Z" itemprop="datePublished">2015-12-27</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/27/MHA_of_MySQL/">MySQL高可用架构MHA</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="一、关于MHA"><a href="#一、关于MHA" class="headerlink" title="一、关于MHA"></a>一、关于MHA</h3><ol>
+<li>简介：</li>
+</ol>
+<p>MHA(Master High Avaliablity)是目前在MySQL高可用方面一个相对成熟的解决方案，它由日本DeNA公司的youshimaton(现就职于F啊侧book公司)开发，是一套作为MySQL高可用环境下故障切换和主从提升的优秀高可用软件。在MySQL故障切换过程中，MHA能做到短时间内完成数据库故障自动切换操作，且在切换过程中能很大程度上保持数据的一致性，以达到真正意义上的高可用。</p>
+<ol>
+<li>结构：</li>
+</ol>
+<p>该软件由两部分构成：MHA-Manager(管理节点)和MHA-Node(数据节点)。MHA-Manager可以单独部署在一台独立的机器管理多个Master-Slave(主从)集群，也可以部署在其中一台Slave节点上。MHA-Node运行在每台MySQL服务器上，MHA-Manager会定时探测集群中的Master节点，当Master出现故障时，它可以自动地将最新数据的Slave提升为新的Master，然后将所有其他的Slave重新指向新的Master。整个故障转移过程对应用程序完全透明。 </p>
+<p>目前MHA主要支持一主多从的架构，<strong>要搭建MHA，要求一个复制集群中至少要有三台数据库服务器</strong>，一主二从，即一台充当Master，剩下两台充当Slave(其中一个为备用Master)。</p>
+<p>架构图如下：</p>
+<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/MHA%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="MHA架构图"></p>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MHA/">MHA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2015/12/27/MHA_of_MySQL/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+  
+
   
     <article id="post-monitor_service_by_Nagios" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -395,82 +463,6 @@
       
         <p class="article-more-link">
           <a  href="/2015/12/17/buildingup_LNMP/#more">more >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-  
-
-  
-    <article id="post-setup_blog_with_HEXO" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/12/16/setup_blog_with_HEXO/" class="article-date">
-  	<time datetime="2015-12-16T02:31:08.000Z" itemprop="datePublished">2015-12-16</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/16/setup_blog_with_HEXO/">HEXO博客的搭建以及多平台迁移</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p><strong>前言</strong>：<br>最近这段时间发生的事情很多，也觉得自己越来越浮躁，出于练习以及实践，准备对最近自己所做的实践进行总结，也就有了这个博客，国际惯例，第一篇正式博客就从搭建这个博客说起吧。</p>
-</blockquote>
-<h2 id="一、-准备"><a href="#一、-准备" class="headerlink" title="一、 准备"></a>一、 准备</h2><h3 id="Git的安装"><a href="#Git的安装" class="headerlink" title="Git的安装"></a>Git的安装</h3><h4 id="1、在自己的github上添加仓库-repository"><a href="#1、在自己的github上添加仓库-repository" class="headerlink" title="1、在自己的github上添加仓库(repository)"></a>1、在自己的github上添加仓库(repository)</h4><ul>
-<li>项目命名规则为你的github的ID.github.io</li>
-</ul>
-<h4 id="2、在自己的电脑上安装两个软件git和nodejs"><a href="#2、在自己的电脑上安装两个软件git和nodejs" class="headerlink" title="2、在自己的电脑上安装两个软件git和nodejs"></a>2、在自己的电脑上安装两个软件git和nodejs</h4><p>建议先安装git，然后在git提供的shell下安装nodejs（win下和ubuntu下类似）</p>
-<ul>
-<li><strong>git的安装</strong><ul>
-<li>windows：下载并安装<a href="http://git-scm.com/">git</a>或者配置官网的github客户端</li>
-<li>ubuntu：执行<code>$ sudo apt-get install git-core</code></li>
-</ul>
-</li>
-<li><strong>nodejs的安装</strong><ul>
-<li>windows:下载<a href="https://nodejs.org/en/">安装程序</a>并安装</li>
-<li>Ubuntu下：<code>$ wget -qO- https://raw.github.com/creationix/nvm/master/install.sh | sh</code>或者下载源码包编译安装</li>
-</ul>
-</li>
-</ul>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HEXO/">HEXO</a></li></ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a  href="/2015/12/16/setup_blog_with_HEXO/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
