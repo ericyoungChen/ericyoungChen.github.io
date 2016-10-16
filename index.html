@@ -102,7 +102,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/inode/" style="font-size: 10px;">inode</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/rsync/" style="font-size: 10px;">rsync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/inode/" style="font-size: 10px;">inode</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rsync/" style="font-size: 10px;">rsync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
 					</div>
 				</section>
 				
@@ -163,6 +163,81 @@
 	</div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-redis-configset" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/16/redis-configset/" class="article-date">
+  	<time datetime="2016-10-16T12:58:05.000Z" itemprop="datePublished">2016-10-16</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/16/redis-configset/">Redis动态修改运行内存</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>场景: 业务正在运行的时候，遇到<code>redis</code>的内存不够，程序报错。此时通过修改配置文件，再重启<code>redis</code>显然不是最好的办法。这个时候，就可以用到<code>redis</code>内建的命令来为正在运行的<code>redis</code>实例添加运行内存。</p>
+</blockquote>
+<h4 id="操作步骤以及相关介绍"><a href="#操作步骤以及相关介绍" class="headerlink" title="操作步骤以及相关介绍"></a>操作步骤以及相关介绍</h4><p>一、 <code>CONFIG GET</code></p>
+<p>该命令可用于取得运行中的 Redis 服务器的配置参数(configuration parameters)，接受单个参数作为搜索关键字。如:</p>
+<pre><code>127.0.0.1:6380&gt; CONFIG GET max*
+1) &quot;maxmemory&quot;
+2) &quot;0&quot;
+3) &quot;maxmemory-samples&quot;
+4) &quot;3&quot;
+5) &quot;maxclients&quot;
+6) &quot;10000&quot;
+7) &quot;maxmemory-policy&quot;
+8) &quot;volatile-lru&quot;
+127.0.0.1:6380&gt; CONFIG GET maxmemory
+1) &quot;maxmemory&quot;
+2) &quot;0
+</code></pre>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2016/10/16/redis-configset/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+  
+
   
     <article id="post-rsync_inotify" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -427,64 +502,6 @@ $&gt; chmod +x /etc/rc.d/init.d/php-fpm
       
         <p class="article-more-link">
           <a  href="/2016/03/08/Saltstack_learning_notes/#more">more >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-  
-
-  
-    <article id="post-Nginx_conf_optimiz" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/01/14/Nginx_conf_optimiz/" class="article-date">
-  	<time datetime="2016-01-14T09:01:57.000Z" itemprop="datePublished">2016-01-14</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/14/Nginx_conf_optimiz/">Nginx性能调优初识</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>Nginx的轻量级、高可用以及高性能等诸多优点，让它成为诸多架站web服务器的选择热门之一。在前面的博文介绍了LNMP网站架构的搭建之后，在此初步描述下Nginx的配置文件以及初步的调优方法。</p>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能调优/">性能调优</a></li></ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a  href="/2016/01/14/Nginx_conf_optimiz/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
