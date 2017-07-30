@@ -5,12 +5,15 @@
   
   <title>Young&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Young's Blog">
+  <meta name="description" content="运维, ElasticSearch, Mysql, Redis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Young&#39;s Blog">
 <meta property="og:url" content="http://yoursite.com/page/3/index.html">
-<meta property="og:site_name" content="Young's Blog">
+<meta property="og:site_name" content="Young&#39;s Blog">
+<meta property="og:description" content="运维, ElasticSearch, Mysql, Redis">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Young's Blog">
+<meta name="twitter:title" content="Young&#39;s Blog">
+<meta name="twitter:description" content="运维, ElasticSearch, Mysql, Redis">
   
     <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
   
@@ -102,7 +105,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/inode/" style="font-size: 10px;">inode</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rsync/" style="font-size: 10px;">rsync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Config-manager/" style="font-size: 10px;">Config-manager</a> <a href="/tags/Consul/" style="font-size: 10px;">Consul</a> <a href="/tags/Consul-Template/" style="font-size: 10px;">Consul-Template</a> <a href="/tags/ES/" style="font-size: 10px;">ES</a> <a href="/tags/ElasticSearch/" style="font-size: 10px;">ElasticSearch</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/hash-tags/" style="font-size: 10px;">hash tags</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/rync/" style="font-size: 10px;">rync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
 					</div>
 				</section>
 				
@@ -163,6 +166,74 @@
 	</div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-master_slave_of_MySQL" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/12/18/master_slave_of_MySQL/" class="article-date">
+  	<time datetime="2015-12-18T03:12:02.000Z" itemprop="datePublished">2015-12-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/18/master_slave_of_MySQL/">MySQL主从同步配置</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>前言：MySQL的主从同步是构建MySQL高性能高可用架构的基础，关于MySQL的安装和配置，在前一篇博文已经描述的很详细，在此不做赘述。本文重点在于MySQL的主从同步配置。</p>
+</blockquote>
+<h3 id="一、原理概述"><a href="#一、原理概述" class="headerlink" title="一、原理概述"></a>一、原理概述</h3><p>MySQL数据的复制方式是安装有该服务的某台主机(master)中的日志文件(binlog)复制到其他主机(slave)上，slave读取对比位于本机的relaylog，并执行一遍所需要的复制来实现的。</p>
+<p>复制过程中，一个服务器充当主服务器(master)，而一个或者多个服务器其他服务器充当从服务器。主服务器将更新写入二进制日志文件(binlog)，并维护文件的一个索引以便于跟踪日志循环。而这些日志可以被从服务器读取并且与从服务器自己的日志文件(relaylog)，进行对比，找到最近一次更新的位置，进行写入，完成后，从服务器才开始激活一个新的SQL线程进行数据的读写操作。</p>
+<h3 id="二、工作描述"><a href="#二、工作描述" class="headerlink" title="二、工作描述"></a>二、工作描述</h3><ol>
+<li>master将数据的改变记录到二进制日志(binary log)中；</li>
+<li>slave将master的binary log中的事件内容拷贝到它的中继日志(relay log)；</li>
+<li>slave重做relay log中的事件，将改变它自己的数据</li>
+</ol>
+<p><img src="http://7xpaqv.com1.z0.glb.clouddn.com/Rep.jpg" alt="原理图示"></p>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2015/12/18/master_slave_of_MySQL/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+  
+
   
     <article id="post-buildingup_LNMP" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -300,6 +371,65 @@
   
 
   
+    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/10/01/hello-world/" class="article-date">
+  	<time datetime="2015-10-01T00:00:00.000Z" itemprop="datePublished">2015-10-01</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/01/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+  
+
+  
     <article id="post-Day-1" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -363,7 +493,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2016 Young Chen
+    		&copy; 2017 Young Chen
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten

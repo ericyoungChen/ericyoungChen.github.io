@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>利用rync+inotify工具进行文件同步 | Young&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="利用rync+inotify工具进行文件同步Edited by houzi 一、背景以及意义 背景: php代码的环境变量方案实施后，若有新的环境变量添加，则需要对多套功能测试环境以及回归测试环境进行多次修改，而且手动到每台机器修改过程难免会繁琐，而且很难保证每次修改的配置文件一致性。 意义: 故将其中一个功能测试环境环境作为rsync服务端，让其他对应测试环境进行修改完环境变量之后进行一次文件同">
+<meta name="keywords" content="inotify,rync,shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用rync+inotify工具进行文件同步">
+<meta property="og:url" content="http://yoursite.com/2016/10/01/rsync_inotify/index.html">
+<meta property="og:site_name" content="Young&#39;s Blog">
+<meta property="og:description" content="利用rync+inotify工具进行文件同步Edited by houzi 一、背景以及意义 背景: php代码的环境变量方案实施后，若有新的环境变量添加，则需要对多套功能测试环境以及回归测试环境进行多次修改，而且手动到每台机器修改过程难免会繁琐，而且很难保证每次修改的配置文件一致性。 意义: 故将其中一个功能测试环境环境作为rsync服务端，让其他对应测试环境进行修改完环境变量之后进行一次文件同">
+<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Multi%20Merge%20Process_a.png">
+<meta property="og:updated_time" content="2017-07-30T11:28:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="利用rync+inotify工具进行文件同步">
+<meta name="twitter:description" content="利用rync+inotify工具进行文件同步Edited by houzi 一、背景以及意义 背景: php代码的环境变量方案实施后，若有新的环境变量添加，则需要对多套功能测试环境以及回归测试环境进行多次修改，而且手动到每台机器修改过程难免会繁琐，而且很难保证每次修改的配置文件一致性。 意义: 故将其中一个功能测试环境环境作为rsync服务端，让其他对应测试环境进行修改完环境变量之后进行一次文件同">
+<meta name="twitter:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Multi%20Merge%20Process_a.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Young Chen</a></h1>
+		</hgroup>
+
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+					        
+								<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+					        
+								<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Config-manager/" style="font-size: 10px;">Config-manager</a> <a href="/tags/Consul/" style="font-size: 10px;">Consul</a> <a href="/tags/Consul-Template/" style="font-size: 10px;">Consul-Template</a> <a href="/tags/ES/" style="font-size: 10px;">ES</a> <a href="/tags/ElasticSearch/" style="font-size: 10px;">ElasticSearch</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/hash-tags/" style="font-size: 10px;">hash tags</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/rync/" style="font-size: 10px;">rync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">I hear and I forget,I see and I remember,I do and I understand.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Young Chen</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Young Chen</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+			        
+						<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+			        
+						<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-rsync_inotify" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/01/rsync_inotify/" class="article-date">
+  	<time datetime="2016-10-01T12:35:00.000Z" itemprop="datePublished">2016-10-01</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      利用rync+inotify工具进行文件同步
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/inotify/">inotify</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rync/">rync</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/shell/">shell</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="利用rync-inotify工具进行文件同步"><a href="#利用rync-inotify工具进行文件同步" class="headerlink" title="利用rync+inotify工具进行文件同步"></a>利用rync+inotify工具进行文件同步</h2><p>Edited by houzi</p>
+<h3 id="一、背景以及意义"><a href="#一、背景以及意义" class="headerlink" title="一、背景以及意义"></a>一、背景以及意义</h3><blockquote>
+<p>背景: php代码的环境变量方案实施后，若有新的环境变量添加，则需要对多套功能测试环境以及回归测试环境进行多次修改，而且手动到每台机器修改过程难免会繁琐，而且很难保证每次修改的配置文件一致性。</p>
+<p>意义: 故将其中一个功能测试环境环境作为rsync服务端，让其他对应测试环境进行修改完环境变量之后进行一次文件同步操作，再对该文件进行监控，若有改动则自动重新加载配置文件，实现一个简单的自动化环境变量批量下发和部署的功能</p>
+</blockquote>
+<h3 id="二、简介"><a href="#二、简介" class="headerlink" title="二、简介"></a>二、简介</h3><h4 id="1-rsync"><a href="#1-rsync" class="headerlink" title="1.rsync"></a>1.rsync</h4><p>描述: rsync是一个远程数据同步工具，通过网络快速同步多台主机间的文件。通过增量同步，对于大数据量的文件可以节约网络资源。只针对增加的内容进行备份。</p>
+<p>缺点: 虽然rsync的同步能力很强大，但是它仅仅只能做同步的事情，它无法监测是否需要同步以及什么时候同步。这个时候就需要下一个工具的协助<code>inotify</code></p>
+<h4 id="2-inotify"><a href="#2-inotify" class="headerlink" title="2. inotify"></a>2. inotify</h4><p>其实将<code>inotify</code>描述为工具，感觉并不是很严谨，确切的说，<code>inotify</code>是一个文件系统的事件监控机制。它允许监控程序打开一个独立的文件描述符，并针对文件变更时间对其进行监控，比如文件内容，属性更改等。可以利用这一特性，编写脚本来对要同步的文件进行监测，若该文件有改动则触发需要进行的操作(比如本文写到的重新加载php配置文件的操作)。</p>
+<a id="more"></a>
+<p>Centos6已支持这一特性，执行<code>ll /proc/sys/fs/inotify</code>若返回如下结果，则证明支持:</p>
+<pre><code>&gt;$ ll /proc/sys/fs/inotify
+total 0
+-rw-r--r-- 1 root root 0 Sep 18 16:11 max_queued_events
+-rw-r--r-- 1 root root 0 Sep 18 16:11 max_user_instances
+-rw-r--r-- 1 root root 0 Sep 18 16:11 max_user_watches
+</code></pre><h3 id="二、功能探索"><a href="#二、功能探索" class="headerlink" title="二、功能探索"></a>二、功能探索</h3><h4 id="1-rsync-配置"><a href="#1-rsync-配置" class="headerlink" title="1. rsync 配置"></a>1. rsync 配置</h4><ol>
+<li>客户端安装rsync后，在<code>/etc/</code>下编辑配置文件，内容如下:</li>
+</ol>
+<pre><code>$&gt; cat /etc/rsyncd.conf
+uid             = root
+gid             = root
+use chroot      = no
+max connections = 200
+timeout         = 600
+pid file        = /var/run/rsyncd.pid
+lock file       = /var/run/rsync.lock
+log file        = /var/log/rsyncd.log
+.
+.
+[php_env]
+path        = /usr/local/webserver/php/etc/fpm.d 
+ignore errors
+read only    = yes
+list        = true
+hosts allow    = many-ips
+hosts deny    = 0.0.0.0/32
+auth users    = rsync
+secrets file    = /etc/rsyncd.passworda
+uid            = rsync
+gid            = rsync
+</code></pre><ol>
+<li>以进程方式启动rsync服务</li>
+</ol>
+<pre><code>$&gt; /usr/bin/rsync --daemon --config=/etc/rsyncd.conf
+</code></pre><ol>
+<li>认证配置:</li>
+</ol>
+<pre><code>* 在服务端上保存认证文件，权限如下:
+
+        $&gt; ll /etc/rsyncd.passworda
+        -rw------- 1 root root 39 Sep 18 17:12 /etc/rsyncd.passworda
+
+* 以及客户端的机器上分别保存内容，权限一样的文件:
+
+        $&gt; ll /etc/rsyncd.passworda
+        -rw------- 1 root root 39 Sep 18 17:12 /etc/rsyncd.passworda
+</code></pre><ol>
+<li>在客户机上分别执行如下命令，即完成文件同步功能:</li>
+</ol>
+<pre><code>$&gt; rsync -azv rsync@ipa::php_env --password-file=/etc/rsyncd.passworda /usr/local/webserver/php/etc/fpm.d/
+</code></pre><p>至此，已完成文件同步的功能。但如果仅仅依靠计划任务来对该目录下的文件进行同步，有些不便捷。所以引入以下工具配合rsync来对配置文件进行同步管理。</p>
+<h4 id="2-inotify-tools配置以及使用"><a href="#2-inotify-tools配置以及使用" class="headerlink" title="2. inotify-tools配置以及使用"></a>2. inotify-tools配置以及使用</h4><ol>
+<li>在<code>github</code>上下载<code>inotify-tools</code>源码包地址是<code>http://github.com/downloads/rvoicilas/inotify-tools/inotify-tools-3.14.tar.gz</code></li>
+</ol>
+<ol>
+<li>解压并且编译安装</li>
+</ol>
+<pre><code>$&gt; tar zxvf inotify-tools-3.14.tar.gz
+$&gt; cd inotify-tools-3.14
+$&gt;  ./configure 
+$&gt; make
+$&gt; make install
+</code></pre><ol>
+<li>验证是否安装成功</li>
+</ol>
+<pre><code>$&gt; ll /usr/local/bin/inotifywa*
+-rwxr-xr-x 1 root root 44279 Sep 19 09:35 /usr/local/bin/inotifywait
+-rwxr-xr-x 1 root root 41369 Sep 19 09:35 /usr/local/bin/inotifywatch
+</code></pre><ol>
+<li>编写脚本试验功能:</li>
+</ol>
+<pre><code>* 脚本内容(监测`/home/guest/sh/a`文件的状态)
+
+        $&gt; cat test.sh 
+        #!/bin/bash
+        while /usr/local/bin/inotifywait -e modify /home/guest/sh/a ;do
+            echo &quot;file a has been modified&quot;
+        done
+
+        $&gt; sh test.sh &gt; test_sh.log &amp;
+        [1] 29270
+        $&gt; Setting up watches.
+        Watches established.
+
+
+* 测试(对`/home/guest/sh/a`文件进行修改，写入内容，查看日志`test_sh.log`):
+
+
+        $&gt; echo asdasfd &gt; a 
+        $&gt; tail -f test_sh.log 
+        /home/guest/sh/a MODIFY 
+        file a has been modified
+</code></pre><p>至此，两个工具的特性已经介绍完毕。</p>
+<h4 id="3-功能实现"><a href="#3-功能实现" class="headerlink" title="3. 功能实现"></a>3. 功能实现</h4><p>设想的文件同步功能示意图如下:</p>
+<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/Multi%20Merge%20Process_a.png" alt="同步功能示意图"></p>
+<p>(1). 在客户端推送启动<code>rsyncd</code>守护进程所需要的配置文件</p>
+<pre><code>$&gt; ansible all -m copy -a &quot;src=/home/guest/rsync/rsyncd.passworda dest=/etc/&quot; -k -i /home/.houzi/hosts/php.hosts
+$&gt; ansible all -m copy -a &quot;src=/home/guest/rsync/rsyncd.passworda dest=/root/rsync/&quot; -k -i /home/.houzi/hosts/php.hosts
+</code></pre><p>(2). 启动<code>rsyncd</code>守护进程</p>
+<pre><code>$&gt; ansible all -m shell -a &quot;. /etc/profile &amp;&amp; /usr/bin/rsync --daemon /etc/rsyncd.conf&quot; -k -i /home/.houzi/hosts/php.hosts
+$&gt; ansible all -m shell -a &quot;ps aux |grep rsync | grep -v grep &quot; -k -i /home/.houzi/hosts/php.hosts        
+</code></pre><p>(3). 在服务端上测试同步是否成功:</p>
+<pre><code>$&gt; /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda /usr/local/webserver/php/etc/fpm.d/ root@ipa::php_env
+@ERROR: auth failed on module php_env
+rsync error: error starting client-server protocol (code 5) at main.c(1503) [sender=3.0.6]
+$&gt; /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda /usr/local/webserver/php/etc/fpm.d/ root@ipb::php_env
+@ERROR: auth failed on module php_env
+rsync error: error starting client-server protocol (code 5) at main.c(1503) [sender=3.0.6]
+$&gt; /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda /usr/local/webserver/php/etc/fpm.d/ root@ipc::php_env
+@ERROR: auth failed on module php_env
+rsync error: error starting client-server protocol (code 5) at main.c(1503) [sender=3.0.6]
+</code></pre><p>至此，貌似没有一个成功的，遇到这个问题，先检查目标机器上的<code>/etc/rsync.passwda</code>文件的权限</p>
+<pre><code>$&gt; ansible all -m shell -a &quot;ls -lthr /etc/rsyn*&quot; -k -i hosts 
+SSH password: 
+192.168.143.171 | SUCCESS | rc=0 &gt;&gt;
+-rw------- 1 root root   15 Aug 17  2015 /etc/rsyncd.password
+-rw------- 1 root root    8 Aug 18  2015 /etc/rsync.password
+-rw------- 1 root root   38 Sep 23 00:34 /etc/rsyncd.passworda
+...
+....太长不写
+</code></pre><p>可以看到<code>/etc/rsyncd.passworda</code>该文件权限是<code>600</code>,好吧，不是这个原因<br>想了N久，看了下推下去的hosts，当中包涵了服务端自己本身，导致服务端的<code>/etc/rsyncd.passwda</code>认证文件与客户端一样(正确的格式应该是服务端只需要密码，不需要用户名)<br>删除之后问题解决。</p>
+<p>至此，同步服务搭建完成</p>
+<p>(4). 推送监测工具<code>inotify-tools</code>并解压安装(后期会打成一个rpm包)</p>
+<p>(5).脚本推送</p>
+<pre><code>#!/bin/bash
+###############################################################################
+#This script is for monitor whether a file or folder is changed,if so , rsync it or reload php-fpm 
+###############################################################################
+
+command=$1
+rsync_File=/usr/local/webserver/php/etc/fpm.d/
+iplist=/root/rsync/iplist
+
+#function rsyncCommand can rsync the pointed file using rsync following the ip in the file defined in var iplist
+function rsyncCommand()
+{
+    while read ip
+    do
+
+        /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda ${rsync_File} root@${ip}::php_env
+
+    done &lt; ${iplist}
+
+}
+
+#function minitor is using inotify-tool to look up whether the defined file is changed, with some params to write some format log
+function monitor()
+{
+    /usr/local/bin/inotifywait -mrq --timefmt &apos;%d/%m/%y %H:%M&apos; --format &apos;%T %w%f %e&apos; -e modify,delete,create  $rsync_File | while read Date Time Filename Operation
+    do
+
+        rsyncCommand 
+        if [[ $? -ne 0 ]]; then
+
+            echo &quot;someting wrong , Please check if rsync-daemon is running in the machines of iplist &quot; &gt;&gt; /tmp/rsync.log
+            echo &quot;------------------------------------------------------------------------------------------------------&quot;  &gt;&gt; /tmp/rsync.log
+
+        else
+
+            echo &quot;${Date} $Time  ${Filename} was ${Operation} &amp; was rsynced to client&quot; &gt;&gt; /tmp/rsync.log
+            echo &quot;---------------------------start to reload php-fpm----------------------------------&quot;  &gt;&gt; /tmp/rsync.log
+            /etc/init.d/php-fpm reload &gt;&gt; /tmp/rsync.log
+            echo &quot;---------------------------php-fpm has been reload----------------------------------&quot;  &gt;&gt; /tmp/rsync.log
+
+        fi
+
+    done
+
+}
+
+function reloadPhpfpm()
+{
+    /usr/local/bin/inotifywait -mrq --timefmt &apos;%d/%m/%y %H:%M&apos; --format &apos;%T %w%f %e&apos; -e modify,delete  $rsync_File |while read Date Time Filename Operation
+
+    do
+
+        echo &quot;${Date} $Time  ${Filename} has been $Operation, php-fpm is reloading&quot; &gt;&gt; /tmp/reload.log
+        /etc/init.d/php-fpm reload
+
+    done
+}
+case $1 in
+    monitor|-M)
+        monitor
+        ;;
+    Rphpfpm|-R)
+        reloadPhpfpm
+        ;;
+    *)
+        echo &quot;Input error,please using monitor|Rphpfpm&quot;
+        exit 1
+        ;;
+esac
+</code></pre><p>(6).启动监测脚本，在客户端上执行一下命令:</p>
+<pre><code>$&gt; /bin/sh /root/rsync/php_env_manager.sh -R &gt;&gt; /root/rsync/php_env_manager.log &amp;
+</code></pre><p>并将其加到开机启动中去。<br>若出现以下进程，表明自动<code>reload</code>脚本部署完成:</p>
+<pre><code>$&gt; ps aux |grep manager
+root      9799  0.0  0.0 106240  1336 pts/1    S    13:57   0:00 /bin/sh /root/rsync/php_env_manager.sh -R
+root      9801  0.0  0.0 106244   824 pts/1    S    13:57   0:00 /bin/sh /root/rsync/php_env_manager.sh -R
+</code></pre><p>(7).验证:</p>
+<ul>
+<li>在<code>171</code>上对<code>/usr/local/webserver/php/etc/fpm.d/juanpi_php_env.conf</code>文件进行修改(添加一行配置)</li>
+<li>在<code>171</code>上执行<code>sh /root/rsync/rsync_juanpi.sh</code>脚本内容如下：</li>
+</ul>
+<pre><code>$&gt; cat /root/rsync/rsync_juanpi.sh 
+#!/bin/bash
+phpenvFile=/usr/local/webserver/php/etc/fpm.d
+shellFile=/etc/profile.d
+iplist=/root/rsync/iplist
+
+#function rsyncCommand can rsync the pointed file using rsync following the ip in the file defined in var iplist
+function rsyncPhpEnv()
+{
+    while read ip
+    do
+
+        /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda ${phpenvFile}/juanpi_php_env.conf root@${ip}::php_env
+
+    done &lt; ${iplist}
+
+}
+
+#function rsyncCommand can rsync the pointed file using rsync following the ip in the file defined in var iplist
+function rsyncshell()
+{
+    while read ip
+    do
+
+        /usr/bin/rsync -avzP --progress --delete --password-file=/etc/rsyncd.passworda ${shellFile}/shell_env.sh root@${ip}::php_shell
+
+    done &lt; ${iplist}
+
+}
+
+case $1 in
+    -P|php|-p)
+    rsyncPhpEnv
+    ;;
+    -S|shell|-s)
+    rsyncshell
+    ;;
+    *|-H|-h|--help)
+    echo &quot;Usage sh $0 -P|php|-p for rsync fpm_env -S|shell|-s for rsync shell_env&quot;
+    exit 1
+esac
+</code></pre><ul>
+<li>可以看到在每台客户机上的<code>/tmp/reload.log</code>有如下日志输出</li>
+</ul>
+<pre><code>$&gt; tail -f /tmp/reload.log 
+26/09/16 13:58  /usr/local/webserver/php/etc/fpm.d/.juanpi_php_env.conf.1hga3I has been MODIFY, php-fpm is reloading
+</code></pre><p>则表明自动reload脚本部署完成且已经生效了。</p>
+<p>8).结果</p>
+<p>因为inotify的监测，做不到对单个文件的mtime进行监测，测试过很多次，对单个文件修改，无法触发自动rsync(原因在后文解释)，如果对目录进行检测，由于<code>fpm.d</code>目录下会生成临时文件则会造成<code>php</code>的<code>reload</code>操作过于频繁(因为计划任务的进行，会导致很多临时文件的产生)。</p>
+<h3 id="三、最终方案"><a href="#三、最终方案" class="headerlink" title="三、最终方案"></a>三、最终方案</h3><p>最终使用的同步方法是确认原配置文件正确之后，使用一个批量<code>rsync</code>同步脚本，将修改分发到各个客户端。或者使用<code>ansible</code>来进行文件同步。配合计划任务(区分功能与回归测试环境的环境变量值)</p>
+<h3 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h3><p>由于<code>inotify－tools</code>监控机制是基于文件的<code>inode</code>指向。而通过<code>rsync</code>方法同步文件调用的是系统的<code>sendfile</code>对文件进行修改，这种情况造成的后果是原来被<code>inotify</code>检测的文件<code>inode</code>已经失效了，虽然文件名称依然一样，但此时这个同名文件的<code>inode</code>指向已经是一个全新的节点。故就无法检测到对应的事件。</p>
+<p>虽然最终没有达到理想的效果，但是对linux的文件系统又有了新的认识。即每个<code>inode</code>包含着文件的元信息：</p>
+<ul>
+<li>文件的字节数</li>
+<li>文件的所属(<code>GID</code>和<code>UID</code>)</li>
+<li>文件的权限(<code>r</code>,<code>w</code>,<code>x</code>)</li>
+<li>文件的时间戳(<code>ctime</code>,<code>mtime</code>,<code>atime</code>)</li>
+<li>链接数</li>
+<li>文件数据的<code>block</code>位置</li>
+</ul>
+<p>对文件进行修改操作的时候，文件的<code>inode</code>并未改变，此时，<code>inotifywait</code>还是可以监视文件内容变化的，也就是说直接对文件进行修改能触发同步脚本。</p>
+<p>但是通过<code>rsync</code>同步文件之后，该文件名虽然还和原来一致，但是此时文件的<code>inode</code>值已经改变，故<code>inotifywait</code>无法监视文件内容变化，因为它所监视的文件已经不存在了。</p>
+<p>虽然做了一次无用功，但是，让自己对<code>Linux</code>文件系统有了新的认知(也反映了自己基础的不牢固)</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/01/Consul_Config_Manager/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Consul, Consul-Template 进行配置管理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/09/27/Hash_tags/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">对Twemproxy中一致性hash与hash tags的理解</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="rsync_inotify" data-title="利用rync+inotify工具进行文件同步" data-url="http://yoursite.com/2016/10/01/rsync_inotify/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"ericyoungchen"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+  
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Young Chen
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>

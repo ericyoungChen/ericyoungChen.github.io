@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Consul, Consul-Template 进行配置管理 | Young&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="运用Consul,Consul-Template进行配置管理Edited by houzi 一、背景对于运行在测试环境的代码，根据不同的测试场景以及测试环境，对代码的环境变量从代码中解耦出来，脱离代码管理，而增加配置的可变更性，对于运维以及开发而言，对资源变更操作所需的成本更低。再配合内网DNS解析，规范域名命名原则，结合hosts文件的下发从而对配置进行无差异化管理。 二、现状现有测试环境多套，">
+<meta name="keywords" content="Consul,Consul-Template,Config-manager">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Consul, Consul-Template 进行配置管理">
+<meta property="og:url" content="http://yoursite.com/2016/11/01/Consul_Config_Manager/index.html">
+<meta property="og:site_name" content="Young&#39;s Blog">
+<meta property="og:description" content="运用Consul,Consul-Template进行配置管理Edited by houzi 一、背景对于运行在测试环境的代码，根据不同的测试场景以及测试环境，对代码的环境变量从代码中解耦出来，脱离代码管理，而增加配置的可变更性，对于运维以及开发而言，对资源变更操作所需的成本更低。再配合内网DNS解析，规范域名命名原则，结合hosts文件的下发从而对配置进行无差异化管理。 二、现状现有测试环境多套，">
+<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Consul_a.png">
+<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/consul_nodes.png">
+<meta property="og:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/consul_kv.png">
+<meta property="og:updated_time" content="2017-07-30T10:44:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Consul, Consul-Template 进行配置管理">
+<meta name="twitter:description" content="运用Consul,Consul-Template进行配置管理Edited by houzi 一、背景对于运行在测试环境的代码，根据不同的测试场景以及测试环境，对代码的环境变量从代码中解耦出来，脱离代码管理，而增加配置的可变更性，对于运维以及开发而言，对资源变更操作所需的成本更低。再配合内网DNS解析，规范域名命名原则，结合hosts文件的下发从而对配置进行无差异化管理。 二、现状现有测试环境多套，">
+<meta name="twitter:image" content="http://7xpdnd.com1.z0.glb.clouddn.com/Consul_a.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Young&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Young Chen</a></h1>
+		</hgroup>
+
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+					        
+								<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+					        
+								<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Apache/" style="font-size: 10px;">Apache</a> <a href="/tags/Config-manager/" style="font-size: 10px;">Config-manager</a> <a href="/tags/Consul/" style="font-size: 10px;">Consul</a> <a href="/tags/Consul-Template/" style="font-size: 10px;">Consul-Template</a> <a href="/tags/ES/" style="font-size: 10px;">ES</a> <a href="/tags/ElasticSearch/" style="font-size: 10px;">ElasticSearch</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/HEXO/" style="font-size: 10px;">HEXO</a> <a href="/tags/LNMP/" style="font-size: 10px;">LNMP</a> <a href="/tags/MHA/" style="font-size: 10px;">MHA</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/Nagios/" style="font-size: 15px;">Nagios</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Twemproxy/" style="font-size: 10px;">Twemproxy</a> <a href="/tags/hash-tags/" style="font-size: 10px;">hash tags</a> <a href="/tags/inotify/" style="font-size: 10px;">inotify</a> <a href="/tags/multi-daemon/" style="font-size: 10px;">multi-daemon</a> <a href="/tags/php-fpm/" style="font-size: 10px;">php-fpm</a> <a href="/tags/rync/" style="font-size: 10px;">rync</a> <a href="/tags/saltstack/" style="font-size: 10px;">saltstack</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/性能调优/" style="font-size: 10px;">性能调优</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/服务器搭建/" style="font-size: 10px;">服务器搭建</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/自动化运维/" style="font-size: 10px;">自动化运维</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">I hear and I forget,I see and I remember,I do and I understand.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Young Chen</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://7xpaqv.com1.z0.glb.clouddn.com/avatar.png" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Young Chen</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/ericyoungChen" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/ericyoung15 " title="weibo">weibo</a>
+			        
+						<a class="mail" target="_blank" href="/youngchen213@outlook.com" title="mail">mail</a>
+			        
+						<a class="google" target="_blank" href="/thankyou5713@gmail.com" title="google">google</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-Consul_Config_Manager" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/11/01/Consul_Config_Manager/" class="article-date">
+  	<time datetime="2016-11-01T12:35:00.000Z" itemprop="datePublished">2016-11-01</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Consul, Consul-Template 进行配置管理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Config-manager/">Config-manager</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Consul/">Consul</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Consul-Template/">Consul-Template</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="运用Consul-Consul-Template进行配置管理"><a href="#运用Consul-Consul-Template进行配置管理" class="headerlink" title="运用Consul,Consul-Template进行配置管理"></a>运用Consul,Consul-Template进行配置管理</h2><p>Edited by houzi</p>
+<h3 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h3><p>对于运行在测试环境的代码，根据不同的测试场景以及测试环境，对代码的环境变量从代码中解耦出来，脱离代码管理，而增加配置的可变更性，对于运维以及开发而言，对资源变更操作所需的成本更低。再配合内网DNS解析，规范域名命名原则，结合<code>hosts</code>文件的下发从而对配置进行无差异化管理。</p>
+<h3 id="二、现状"><a href="#二、现状" class="headerlink" title="二、现状"></a>二、现状</h3><p>现有测试环境多套，在一处测试环境对环境变量文件进行修改，完成后进行多处下发，通过<code>rsync</code>或者<code>ansible</code>或者<code>saltstack</code>等同步工具下发。而差异的环境通过脚本进行对配置修改，从而达到配置正确适应该环境的目的。</p>
+<a id="more"></a>
+<h3 id="三、解决办法"><a href="#三、解决办法" class="headerlink" title="三、解决办法"></a>三、解决办法</h3><h4 id="1-最初做法"><a href="#1-最初做法" class="headerlink" title="1. 最初做法:"></a>1. 最初做法:</h4><ul>
+<li>根据开发提供的测试值，运用脚本生成配置文件，直接添加。无重复检查</li>
+<li>对生成脚本进行重复性检查，重复与非重复变量进行区分。</li>
+<li>人工对多套环境进行重复copy操作</li>
+</ul>
+<h4 id="2-通过inotify-rsync来进行同步管理"><a href="#2-通过inotify-rsync来进行同步管理" class="headerlink" title="2. 通过inotify+rsync来进行同步管理"></a>2. 通过<code>inotify+rsync</code>来进行同步管理</h4><p>坑：</p>
+<p>看似方案可行，但有以下几处坑，</p>
+<ul>
+<li>每次对单个文件进行监控无法触发<code>inotify</code>(因为同步过去文件的<code>inode</code>已改变)</li>
+<li>对文件夹内文件进行监控无法收敛。造成触发一秒内多次<code>reload</code>php-fpm进程导致服务挂了</li>
+<li><code>rsync</code>的配置繁琐。(应该是我使用的姿势不对)</li>
+</ul>
+<h4 id="3-通过ansible或者saltstack工具"><a href="#3-通过ansible或者saltstack工具" class="headerlink" title="3. 通过ansible或者saltstack工具"></a>3. 通过<code>ansible</code>或者<code>saltstack</code>工具</h4><p>线上的环境变量，在开始的时候运用的是<code>saltstack</code>的<code>state</code>模块进行下发以及管理的。相信熟悉<code>saltstack</code>工具的同学应该很清楚这个模块的作用。定义好<code>sls</code>文件，有环境变量变更先对文件备份，以便快速回滚。</p>
+<p>但是测试环境经常涉及到配置查询，有时也涉及到变更。对不同环境的变量也有区分。而没选择这两个工具的更大原因应该是自己想跳出这两个工具的限制(测试环境新增域名已通过<code>ansible-playbooks</code>进行管理)。</p>
+<h4 id="4-新的发现"><a href="#4-新的发现" class="headerlink" title="4. 新的发现"></a>4. 新的发现</h4><h5 id="a-Consul-Consul-Template-简介"><a href="#a-Consul-Consul-Template-简介" class="headerlink" title="a. Consul+Consul-Template 简介"></a>a. Consul+Consul-Template 简介</h5><p>在前辈的偶然提示下，了解到了一个具有<code>key/value</code>存储功能的服务发现软件(系统？工具？)<code>consul</code>，而且除了键值存储，还有健康检查，融合数据中心等功能。</p>
+<blockquote>
+<p><code>Consul-Template</code>可以通过监听本地的<code>Consul</code>服务来获取注册信息进而完成配置的更新。而且这两个服务部署便捷，仅仅是两个二进制包，解压之后添加到环境变量里，就可以直接调用，对于我们运维而言，仅仅是两个命令而已。还有个优点是自带web界面窗口，带有<code>ACLs</code>策略，以及简单的访问权限控制。</p>
+</blockquote>
+<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/Consul_a.png" alt="http://7xpdnd.com1.z0.glb.clouddn.com/Consul_a.png"></p>
+<h5 id="b-Consul部署方法"><a href="#b-Consul部署方法" class="headerlink" title="b. Consul部署方法"></a>b. <code>Consul</code>部署方法</h5><ol>
+<li>到<a href="https://www.consul.io/downloads.html" target="_blank" rel="external">https://www.consul.io/downloads.html</a>选择合适版本下载<code>Consul</code>的二进制包</li>
+<li>从此处获得<code>Consul</code>的Web-ui：<a href="https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_web_ui.zip" target="_blank" rel="external">https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_web_ui.zip</a></li>
+</ol>
+<p>包安装完，添加至环境变量之后，便可使用命令行了。</p>
+<h5 id="c-Consul命令说明以及集群搭建"><a href="#c-Consul命令说明以及集群搭建" class="headerlink" title="c. Consul命令说明以及集群搭建"></a>c. <code>Consul</code>命令说明以及集群搭建</h5><h6 id="命令参数说明"><a href="#命令参数说明" class="headerlink" title="命令参数说明"></a>命令参数说明</h6><pre><code>$&gt; consul -h
+usage: consul [--version] [--help] &lt;command&gt; [&lt;args&gt;]
+
+Available commands are:
+    agent          Runs a Consul agent  #以agent方式启动consul实例，若加-server参数，则表明该节点为server集群之一。
+    configtest     Validate config file
+    event          Fire a new event
+    exec           Executes a command on Consul nodes
+    force-leave    Forces a member of the cluster to enter the &quot;left&quot; state
+    info           Provides debugging information for operators
+    join           Tell Consul agent to join cluster # 告诉改实例要加入的集群
+    keygen         Generates a new encryption key
+    keyring        Manages gossip layer encryption keys
+    leave          Gracefully leaves the Consul cluster and shuts down # 退出集群并且关闭
+    lock           Execute a command holding a lock
+    maint          Controls node or service maintenance mode #将某节点挂成维护状态
+    members        Lists the members of a Consul cluster # 列出集群中的成员
+    monitor        Stream logs from a Consul agent
+    operator       Provides cluster-level tools for Consul operators
+    reload         Triggers the agent to reload configuration files
+    rtt            Estimates network round trip time between nodes
+    version        Prints the Consul version
+    watch          Watch for changes in Consul #监视集群中的变化
+</code></pre><p>以server启动一个节点(一般server节点是3-5个):</p>
+<pre><code>$&gt; nohup consul agent -server -bootstrap -dc jp-test -ui-dir=/data/consul.d/ -data-dir=/data/consul.d/data -config-dir=/data/consul.d/conf -pid-file=/data/consul.d/consul.pid -client=0.0.0.0 -advertise=192.168.143.171 -node=192.168.143.171 -rejoin &gt;&gt; /data/consul.d/consul.log &amp;
+</code></pre><p>也可以将上述参数写到一个配置文件中，启动的时候指定该配置文件：</p>
+<pre><code>$&gt; cat /data/consul.d/conf/main.json 
+{
+        &quot;bootstrap&quot;: true,
+        &quot;server&quot;: true,
+        &quot;datacenter&quot;: &quot;jp-test&quot;,
+        &quot;data_dir&quot;: &quot;/data/consul.d/data&quot;,
+        &quot;pid_file&quot;: &quot;/data/consul.d/consul.pid&quot;,
+        &quot;ui_dir&quot;: &quot;/data/consul.d/ui&quot;
+        &quot;client_addr&quot;: &quot;0.0.0.0&quot;,
+        &quot;node_name&quot;: &quot;juanpi-test-171&quot;,
+        &quot;rejoin_after_leave&quot;: true,
+        &quot;log_level&quot;: &quot;INFO&quot;,
+        &quot;advertise_addr&quot;:&quot;192.168.143.171&quot;
+}
+
+$&gt; consul agent -config-dir=/data/consul.d/conf
+</code></pre><p>参数解释：</p>
+<pre><code>-server     #表明该节点以server模式运行，
+-bootstrap  # 用来控制一个server是否在bootstrap模式，在一个datacenter中只能有一个server处于bootstrap模式，当一个server处于bootstrap模式时，可以自己选举为raft leader
+-pid-file   #提供一个路径来存放pid文件，可以使用该文件进行SIGINT/SIGHUP(关闭/更新)agent
+-client     #consul绑定在哪个client地址上，这个地址提供HTTP、DNS、RPC等服务，默认是127.0.0.1
+-advertise  #通知展现地址用来改变我们给集群中的其他节点展现的地址，一般情况下-bind地址就是展现地址
+-join       #加入一个已经启动的agent的ip地址，可以多次指定多个agent的地址。如果consul不能加入任何指定的地址中，则agent会启动失败，默认agent启动时不会加入任何节点。
+-node       #节点在集群中的名称，在一个集群中必须是唯一的，默认是该节点的主机名
+-rejoin     #使consul忽略先前的离开，在再次启动后仍旧尝试加入集群中。
+-dc         #该标记控制agent允许的datacenter的名称，默认是dc1
+-ui-dir     #指定web-ui静态文件所在目录，可通过浏览器访问ip:port看到图形界面
+</code></pre><h6 id="构建集群-另外启动多个节点，join到已有节点"><a href="#构建集群-另外启动多个节点，join到已有节点" class="headerlink" title="构建集群(另外启动多个节点，join到已有节点):"></a>构建集群(另外启动多个节点，join到已有节点):</h6><ol>
+<li>在118机器上执行(以server状态启动):</li>
+</ol>
+<pre><code>$&gt; nohup consul agent -server \
+-dc jp-test \
+-ui-dir=/data/consul.d/ui \
+-data-dir=/data/consul.d/data \
+-config-dir=/data/consul.d/conf \
+-pid-file=/data/consul.d/consul.pid \
+-client=0.0.0.0 \
+-advertise=192.168.143.118 \
+-join=192.168.143.171 \
+-node=192.168.143.118 \
+-rejoin  &gt;&gt; /data/consul.d/consul.log &amp;
+</code></pre><ol>
+<li>在117机器上执行(以server状态启动)：</li>
+</ol>
+<pre><code>$&gt; nohup consul agent -server \
+-dc jp-test \
+-ui-dir=/data/consul.d/ui \
+-data-dir=/data/consul.d/data \
+-config-dir=/data/consul.d/conf \
+-pid-file=/data/consul.d/consul.pid \
+-client=0.0.0.0 \
+-advertise=192.168.143.117 \
+-join=192.168.143.171 \
+-node=192.168.143.117 \
+-rejoin  &gt;&gt; /data/consul.d/consul.log &amp;
+</code></pre><ol>
+<li>在119机器上执行(未以server状态启动，即为client模式)；</li>
+</ol>
+<pre><code>$&gt; nohup consul agent -dc jp-test \
+-data-dir=/data/consul.d/data \
+-config-dir=/data/consul.d/conf \
+-pid-file=/data/consul.d/consul.pid \
+-client=0.0.0.0 \
+-advertise=192.168.143.119 \
+-join=192.168.143.171 \
+-join=192.168.143.117 \
+-join=192.168.143.118 \
+-node=192.168.143.119 -rejoin &gt;&gt; /data/consul.d/consul.log &amp;
+</code></pre><ol>
+<li>至此，一个包含3个<code>server</code>节点的<code>consul</code>集群搭建完成，通过命令可以查看节点成员状态：</li>
+</ol>
+<pre><code>$&gt; consul members list
+Node             Address               Status  Type    Build  Protocol  DC
+192.168.143.117  192.168.143.117:8301  alive   server  0.7.0  2         jp-test
+192.168.143.118  192.168.143.118:8301  alive   server  0.7.0  2         jp-test
+192.168.143.119  192.168.143.119:8301  alive   client  0.7.0  2         jp-test
+192.168.143.171  192.168.143.171:8301  alive   server  0.7.0  2         jp-test
+</code></pre><ol>
+<li>通过页面访问内容如下:</li>
+</ol>
+<p><img src="http://7xpdnd.com1.z0.glb.clouddn.com/consul_nodes.png" alt="consul_nodes"></p>
+<p>该页面可以看到有以下功能</p>
+<ul>
+<li>节点信息</li>
+<li>服务节点的健康状态</li>
+<li><code>key/value</code>的存储内容</li>
+<li><code>ACL</code>访问控制表的功能</li>
+</ul>
+<h6 id="键值设置"><a href="#键值设置" class="headerlink" title="键值设置"></a>键值设置</h6><p>consul的使用，在配置管理这块，能够用到的功能就是它的<code>key/value</code>存储功能。而设置键值参数。，有两种方式可以添加。</p>
+<ol>
+<li>通过web界面，可以点击<code>KEY/VALUE</code>按钮就能看到如下，它支持创建不同的<code>folder</code>对键值对进行管理。类似于数据库范畴的表的单位。</li>
+<li>通过<code>http</code>接口，对其<code>PUT</code>参数</li>
+</ol>
+<p>对于第一种方式，在此不做细说，看下图应该就能知晓。<br><img src="http://7xpdnd.com1.z0.glb.clouddn.com/consul_kv.png" alt="consul_kv"></p>
+<p>通过http接口设置键值，则可以通过一些web工具传递<code>PUT</code>参数进行设置，如在<code>shell</code>下用<code>curl</code>工具：</p>
+<pre><code>$&gt; curl -X PUT -d &quot;test&quot; &apos;http://192.168.143.117:8500/v1/kv/jpenv/test111?dc=jp-test&apos;
+</code></pre><p><code>url</code>参数详解：</p>
+<ul>
+<li><code>http://192.168.143.117:8500/v1/kv/</code>为设置<code>kv</code>的地址</li>
+<li><code>jpenv</code>表示<code>key</code>要存在哪个定义的文件夹下</li>
+<li><code>test111</code>则是<code>key</code>的名称</li>
+<li><code>dc=jp-test</code>表明要存在哪个<code>datacenter</code>下</li>
+<li><code>test</code>这个<code>PUT</code>传递过去的参数则是<code>vaule</code>的值</li>
+</ul>
+<p>上面那条指令意思是是在刚才搭建的集群内，设置一个<code>key</code>为<code>test111</code>在<code>jp-test</code>数据中心内<code>jpenv</code>目录下而且<code>value</code>为<code>test</code></p>
+<p>更多的web接口可以访问</p>
+<p><a href="https://my.oschina.net/guol/blog/353394" target="_blank" rel="external">https://my.oschina.net/guol/blog/353394</a></p>
+<p><a href="https://www.consul.io/docs/agent/http.html" target="_blank" rel="external">https://www.consul.io/docs/agent/http.html</a></p>
+<p><strong>到这里可能要问，现在只是提供键值存储，是的，数据有了，但是要怎样生成配置文件？？对的，那就是接下来要介绍的可以根据<code>consul</code>中存储的信息能生成文件的<code>Consul-Template</code></strong></p>
+<h5 id="d-Consul-Template使用"><a href="#d-Consul-Template使用" class="headerlink" title="d. Consul-Template使用"></a>d. <code>Consul-Template</code>使用</h5><p><code>Consul-Template</code>顾名思义，是生成需要模版来生成文件用的。有自带的变量，对应<code>consul</code>集群中存储的信息。模版文件的编写.</p>
+<ol>
+<li>命令使用实例:</li>
+</ol>
+<pre><code>$&gt; cat test.ctmpl 
+{{range ls "jpenv@jp-test"}}
+env[{{.Key}}]=&apos;{{.Value}}&apos;{{end}}
+</code></pre><p>模版的编写从<code>function (start, stop, step) {
+            if(typeof stop === 'undefined') {
+                stop = start;
+                start = 0;
+                step = 1;
+            }
+            else if(!step) {
+                step = 1;
+            }
+
+            var arr = [];
+            var i;
+            if (step > 0) {
+                for (i=start; i<stop; i+="step)" {="" arr.push(i);="" }="" else="" for="" (i="start;" i="">stop; i+=step) {
+                    arr.push(i);
+                }
+            }
+            return arr;
+        }</stop;></code>到<code></code>的中间部分表明要遍历的数据范围(可依据环境设置不同的路径或者数据中心，从而生成差异性的配置文件)，而写死的则是格式。</p>
+<p>根据此模版启动一个<code>consul-template</code>实例:</p>
+<pre><code>$&gt; consul-template -consul 127.0.0.1:8500 -wait=3s -template /data/consul.d/info/test.ctmpl:/data/consul.d/info/test.result:date &gt;&gt; template.log &amp; 
+$&gt; cat test.result
+
+env[act_environment]=&apos;test&apos;
+env[db_master_biguanxingtai_000_drools_host]=&apos;db-master-biguanxingtai-000.jp&apos;
+env[db_master_biguanxingtai_000_drools_port]=&apos;3306&apos;
+env[db_master_biguanxingtai_000_drools_pwd]=&apos;pnY65kQw&apos;
+env[db_master_biguanxingtai_000_drools_user]=&apos;develop&apos;
+env[db_slave_order_pop0_001_host]=&apos;192.168.143.233&apos;
+env[db_slave_order_pop0_001_pwd]=&apos;juanpi&apos;
+env[db_slave_order_pop0_001_user]=&apos;juanpi&apos;
+env[db_slave_order_pop1_001_host]=&apos;192.168.143.233&apos;
+env[db_slave_order_pop1_001_port]=&apos;3306&apos;
+env[db_slave_order_pop1_001_pwd]=&apos;juanpi&apos;
+env[db_slave_order_pop1_001_user]=&apos;juanpi&apos;
+env[db_slave_order_user2_001_port]=&apos;3306&apos;
+env[db_slave_order_user2_001_pwd]=&apos;juanpi&apos;
+env[db_slave_order_user3_001_host]=&apos;192.168.143.233&apos;
+env[db_slave_order_user3_001_port]=&apos;3306&apos;
+env[db_slave_order_user3_001_pwd]=&apos;juanpi&apos;
+env[db_slave_order_user3_001_user]=&apos;juanpi&apos;
+env[test111]=&apos;test&apos;
+env[testfrompy]=&apos;alsofrompy&apos;
+env[twemproxy_marketing_activity_000_port]=&apos;9210&apos;
+</code></pre><ol>
+<li>部分参数详解</li>
+</ol>
+<pre><code>* `-consul`指定一个consul服务地址
+* `-template`设定模版文件路径，生成的目标文件路径以及生成文件之后需要执行的操作
+* `-wait`指定生成文件后触发操作的延时时间
+</code></pre><p>在web界面对<code>key/value</code>进行操作，就能触发启动命令最后一部分的<code>shell</code>命令。(把reload的操作写在这里)</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/30/ElasticSearch/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          ELasticSearch 初探
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/01/rsync_inotify/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">利用rync+inotify工具进行文件同步</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="Consul_Config_Manager" data-title="Consul, Consul-Template 进行配置管理" data-url="http://yoursite.com/2016/11/01/Consul_Config_Manager/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"ericyoungchen"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+  
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Young Chen
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>
